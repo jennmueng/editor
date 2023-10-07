@@ -3,16 +3,18 @@
 import React from "react";
 import { fetchSuggestions } from "../util";
 import { Popup } from "./popup";
-import { Spinner } from "./spinner";
+import { PopupChildren } from "./popupchildren";
 
 export const Editor = () => {
     const [hasSelection, setHasSelection] = React.useState(false);
     const [selectionRect, setSelectionRect] = React.useState<DOMRect>();
 
     const [suggestions, setSuggestions] = React.useState<string[]>([]);
+    const [status, setStatus] = React.useState<"idle" | "fetching" | "done">(
+        "idle"
+    );
 
     const contentEditableRef = React.useRef<HTMLDivElement>(null);
-    const originalTextRef = React.useRef<string>();
 
     React.useEffect(() => {
         const handleSelectionChange = () => {
@@ -100,6 +102,7 @@ export const Editor = () => {
 
             setHasSelection(false);
             setSuggestions([]);
+            setStatus("idle");
         };
 
         document.addEventListener("selectionchange", handleSelectionChange);
@@ -169,13 +172,18 @@ export const Editor = () => {
 
                                 if (text) {
                                     setSuggestions([]);
-                                    const suggestions = await fetchSuggestions(
-                                        text,
-                                        newRange.startOffset,
-                                        newRange.endOffset
-                                    );
-
-                                    setSuggestions(suggestions);
+                                    setStatus("fetching");
+                                    try {
+                                        const suggestions =
+                                            await fetchSuggestions(
+                                                text,
+                                                newRange.startOffset,
+                                                newRange.endOffset
+                                            );
+                                        setSuggestions(suggestions);
+                                    } finally {
+                                        setStatus("done");
+                                    }
                                 }
                             };
 
@@ -201,71 +209,10 @@ export const Editor = () => {
                 contentEditable
             />
             <Popup rect={selectionRect} visible={hasSelection}>
-                {suggestions.length === 0 ? (
-                    <Spinner />
-                ) : (
-                    suggestions.map((suggestion, index) => (
-                        <div
-                            key={index}
-                            className="p-2 cursor-pointer hover:bg-gray-100 rounded text-xs pointer-events-auto select-none whitespace-nowrap"
-                            onMouseEnter={(e) => {
-                                const selection = window.getSelection();
-
-                                if (selection && selection.rangeCount > 0) {
-                                    const range = selection.getRangeAt(0);
-
-                                    originalTextRef.current = range.toString();
-
-                                    const element =
-                                        document.createElement("span");
-                                    element.className =
-                                        "text-blue-700 font-semibold";
-                                    element.innerHTML = suggestion;
-                                    range.deleteContents();
-                                    range.insertNode(element);
-
-                                    range.commonAncestorContainer.normalize();
-                                }
-                            }}
-                            onMouseLeave={() => {
-                                const selection = window.getSelection();
-
-                                if (selection && selection.rangeCount > 0) {
-                                    const range = selection.getRangeAt(0);
-
-                                    range.deleteContents();
-                                    range.insertNode(
-                                        document.createTextNode(
-                                            originalTextRef.current ?? ""
-                                        )
-                                    );
-
-                                    range.commonAncestorContainer.normalize();
-                                }
-                            }}
-                            onPointerUp={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-
-                                const selection = window.getSelection();
-
-                                if (selection && selection.rangeCount > 0) {
-                                    const range = selection.getRangeAt(0);
-                                    range.deleteContents();
-                                    range.insertNode(
-                                        document.createTextNode(suggestion)
-                                    );
-
-                                    selection.removeAllRanges();
-
-                                    range.commonAncestorContainer.normalize();
-                                }
-                            }}
-                        >
-                            {suggestion}
-                        </div>
-                    ))
-                )}
+                <PopupChildren
+                    isLoading={status === "fetching" || status === "idle"}
+                    suggestions={suggestions}
+                />
             </Popup>
         </div>
     );

@@ -10,9 +10,13 @@ const openai = new OpenAI({
 export const runtime = "edge";
 
 export async function POST(req: Request) {
-    const { contextInput } = await req.json();
+    const { text, start, end } = await req.json();
 
-    console.log("contextInput", contextInput);
+    const selectedText = text.slice(start, end);
+    const textWithContext = `${text.slice(
+        0,
+        start
+    )}[${selectedText}]${text.slice(end)}`;
 
     // Ask OpenAI for a streaming completion given the prompt
     const response = await openai.completions.create({
@@ -47,21 +51,25 @@ The [tracks for the San Ramon Branch Line of the Southern Pacific Railroad were 
 </example>
 ---
 <input>
-${contextInput}
+${textWithContext}
 </input>
 <suggestions>`,
     });
 
-    const text = response.choices[0].text;
+    const outputText = response.choices[0].text;
 
     console.log("--RAW_RESPONSE--");
-    console.log(text);
+    console.log(outputText);
 
-    const suggestions = text.split("\n").flatMap((suggestion) => {
+    const suggestions = outputText.split("\n").flatMap((suggestion) => {
         let match = suggestion.match(/\[(.*?)\]/);
         const result = (match ? match[1] : suggestion.replace("- ", "")).trim();
 
-        return result ? [result] : [];
+        if (result && result !== selectedText) {
+            return result;
+        }
+
+        return [];
     });
 
     return NextResponse.json(suggestions);

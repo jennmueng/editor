@@ -10,6 +10,10 @@
     },
     "dependencies": {
         "@floating-ui/react": "^0.26.0",
+        "@tiptap/extension-bubble-menu": "^2.1.11",
+        "@tiptap/pm": "^2.1.11",
+        "@tiptap/react": "^2.1.11",
+        "@tiptap/starter-kit": "^2.1.11",
         "ai": "^2.2.14",
         "clsx": "^2.0.0",
         "next": "13.5.4",

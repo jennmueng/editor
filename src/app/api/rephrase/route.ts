@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { SelectionContext } from "~/app/types";
 
 // Create an OpenAI API client (that's edge friendly!)
 const openai = new OpenAI({
@@ -10,13 +11,9 @@ const openai = new OpenAI({
 export const runtime = "edge";
 
 export async function POST(req: Request) {
-    const { text, start, end } = await req.json();
+    const { before, selection, after } = (await req.json()) as SelectionContext;
 
-    const selectedText = text.slice(start, end);
-    const textWithContext = `${text.slice(
-        0,
-        start
-    )}[${selectedText}]${text.slice(end)}`;
+    const joinedContext = `${before}[${selection}]${after}`.trim();
 
     // Ask OpenAI for a streaming completion given the prompt
     const response = await openai.completions.create({
@@ -24,10 +21,11 @@ export async function POST(req: Request) {
         temperature: 0.6,
         max_tokens: 256,
         stop: ["</suggestions"],
-        prompt: `Suggest better ways to phrase the sentence inside the brackets. Only rephrase the text inside the brackets, not the text outside the brackets. Make sure the suggestions work in the context of the sentence.
+        prompt: `Suggest better ways to phrase the sentence inside the [...] square brackets. Only rephrase the text inside the brackets, not the text outside the brackets. Make sure the suggestions work in the context of the sentence.
 <guidelines>
 - Make sure a suggestion works in the context of the sentence.
 - The suggestion should be an exact replacement of the text inside the brackets. No extra words should be added that do not fit in the context of the sentence.
+- Return only one [...] block per suggestion.
 </guidelines>
 ---
 <example>
@@ -51,7 +49,7 @@ The [tracks for the San Ramon Branch Line of the Southern Pacific Railroad were 
 </example>
 ---
 <input>
-${textWithContext}
+${joinedContext}
 </input>
 <suggestions>`,
     });
@@ -65,7 +63,7 @@ ${textWithContext}
         let match = suggestion.match(/\[(.*?)\]/);
         const result = (match ? match[1] : suggestion.replace("- ", "")).trim();
 
-        if (result && result !== selectedText) {
+        if (result && result !== selection) {
             return result;
         }
 

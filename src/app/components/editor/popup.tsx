@@ -4,7 +4,7 @@ import { autoUpdate, useFloating } from "@floating-ui/react";
 import clsx from "clsx";
 
 interface PopupProps {
-    rect?: DOMRect;
+    rect?: DOMRect | null;
     visible: boolean;
     children: React.ReactNode;
 }

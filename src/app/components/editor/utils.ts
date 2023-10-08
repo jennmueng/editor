@@ -104,7 +104,10 @@ export const useSuggestions = () => {
 
             const suggestions = await fetchSuggestions(context);
 
-            if (transactionId === transactionRef.current) {
+            if (
+                transactionId === transactionRef.current &&
+                status === "fetching"
+            ) {
                 setSuggestions(suggestions);
                 setStatus("done");
             }

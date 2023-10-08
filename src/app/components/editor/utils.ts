@@ -83,6 +83,11 @@ export const useSuggestions = () => {
 
     const transactionRef = React.useRef<number>(0);
 
+    const statusRef = React.useRef<"idle" | "fetching" | "done">("idle");
+    React.useEffect(() => {
+        statusRef.current = status;
+    }, [status]);
+
     const onBlur = React.useCallback(() => {
         setSuggestions([]);
         setStatus("idle");
@@ -105,23 +110,18 @@ export const useSuggestions = () => {
 
             const suggestions = await fetchSuggestions(context);
 
-            console.log(
-                "fetch done",
-                suggestions,
-                transactionId,
-                transactionRef,
-                status
-            );
-
             if (
                 transactionId === transactionRef.current &&
-                status === "fetching"
+                statusRef.current === "fetching"
             ) {
                 setSuggestions(suggestions);
                 setStatus("done");
             }
         },
-        250
+        250,
+        {
+            leading: false,
+        }
     );
 
     const getSuggestionsHandler = React.useCallback(

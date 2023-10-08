@@ -34,10 +34,14 @@ export const Suggestions = ({
 
     useUpdateEffect(() => {
         if (context) {
-            editor?.commands.setTextSelection({
-                from: context.selectionStart,
-                to: context.selectionEnd,
-            });
+            editor
+                ?.chain()
+                .setTextSelection({
+                    from: context.selectionStart,
+                    to: context.selectionEnd,
+                })
+                .setMeta("isSystemAction", true)
+                .run();
         } else {
             editor?.commands.unsetSelectionHighlight();
         }

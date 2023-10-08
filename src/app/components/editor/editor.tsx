@@ -43,7 +43,11 @@ export const Editor = () => {
             }}
             onBlur={onBlur}
             onSelectionUpdate={({ editor, transaction }) => {
-                debouncedGetSuggestions(editor, transaction);
+                const isSystemAction = transaction.getMeta("isSystemAction");
+
+                if (!isSystemAction) {
+                    debouncedGetSuggestions(editor, transaction);
+                }
             }}
         >
             <Menu suggestions={suggestions} context={context} status={status} />

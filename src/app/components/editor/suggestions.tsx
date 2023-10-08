@@ -32,17 +32,6 @@ export const Suggestions = ({
         editor?.commands.revertText();
     }, [editor]);
 
-    useUpdateEffect(() => {
-        if (context) {
-            editor?.commands.setTextSelection({
-                from: context.selectionStart,
-                to: context.selectionEnd,
-            });
-        } else {
-            editor?.commands.unsetSelectionHighlight();
-        }
-    }, [context]);
-
     useUnmount(() => {
         if (originalTextRef.current) {
             revertText();

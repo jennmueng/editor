@@ -83,6 +83,11 @@ export const useSuggestions = () => {
 
     const transactionRef = React.useRef<number>(0);
 
+    const statusRef = React.useRef<"idle" | "fetching" | "done">("idle");
+    React.useEffect(() => {
+        statusRef.current = status;
+    }, [status]);
+
     const onBlur = React.useCallback(() => {
         setSuggestions([]);
         setStatus("idle");
@@ -100,6 +105,15 @@ export const useSuggestions = () => {
             setContext(context);
             setStatus("fetching");
 
+            editor
+                .chain()
+                .setTextSelection({
+                    from: context.selectionStart,
+                    to: context.selectionEnd,
+                })
+                .setMeta("isSystemAction", true)
+                .run();
+
             const transactionId = Date.now();
             transactionRef.current = transactionId;
 
@@ -107,13 +121,16 @@ export const useSuggestions = () => {
 
             if (
                 transactionId === transactionRef.current &&
-                status === "fetching"
+                statusRef.current === "fetching"
             ) {
                 setSuggestions(suggestions);
                 setStatus("done");
             }
         },
-        250
+        250,
+        {
+            leading: false,
+        }
     );
 
     const getSuggestionsHandler = React.useCallback(

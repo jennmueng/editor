@@ -16,12 +16,34 @@
   }
 }
 
-body {
-  .tiptap p.is-editor-empty:first-child::before {
-    color: #adb5bd;
-    content: attr(data-placeholder);
-    float: left;
-    height: 0;
-    pointer-events: none;
-  }
+.tiptap h1 {
+  @apply text-2xl font-bold mt-3;
+}
+
+.tiptap h2 {
+  @apply text-xl font-bold mt-2;
+}
+
+.tiptap h3 {
+  @apply text-lg font-bold mt-1;
+}
+
+.tiptap h4 {
+  @apply text-base font-bold mt-1;
+}
+
+.tiptap h5 {
+  @apply text-base font-semibold;
+}
+
+.tiptap h6 {
+  @apply text-base font-medium;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }

@@ -38,7 +38,8 @@ export const TextReplacementExtension = Extension.create({
                 ({ tr, state, commands }) => {
                     originalText = tr.doc.textBetween(
                         state.selection.from,
-                        state.selection.to
+                        state.selection.to,
+                        "\n"
                     );
 
                     replacedText = text;

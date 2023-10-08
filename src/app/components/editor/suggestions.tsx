@@ -67,7 +67,7 @@ export const Suggestions = ({
                             editor?.commands.setText(suggestion);
                         }}
                     >
-                        {suggestion}
+                        {suggestion.replace("\n", "<br>")}
                     </div>
                 ))}
             </>

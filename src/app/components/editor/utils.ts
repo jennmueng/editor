@@ -18,6 +18,10 @@ export const fetchSuggestions = async (context: SelectionContext) => {
     return response.json() as Promise<string[]>;
 };
 
+export const getTextForSlice = (node: Node) => {
+    return node.textBetween(0, node.nodeSize - 2, "\n");
+};
+
 const CONTEXT_PADDING_CHARS = 64;
 
 export const getSelectionContext = (
@@ -32,10 +36,9 @@ export const getSelectionContext = (
     );
 
     const wordBoundaryRegex = /[\s\(\)\[\]\.,;:!?]/;
-    const textBeforeSelection = doc.cut(
-        contextStart,
-        selectionStart
-    ).textContent;
+    const textBeforeSelection = getTextForSlice(
+        doc.cut(contextStart, selectionStart)
+    );
     const reversedTextBeforeSelection = textBeforeSelection
         .split("")
         .reverse()
@@ -45,7 +48,10 @@ export const getSelectionContext = (
     if (wordBoundaryBefore === -1) {
         wordBoundaryBefore = reversedTextBeforeSelection.length;
     }
-    const textAfterSelection = doc.cut(selectionEnd, contextEnd).textContent;
+    const textAfterSelection = getTextForSlice(
+        doc.cut(selectionEnd, contextEnd)
+    );
+
     let wordBoundaryAfter = textAfterSelection.search(wordBoundaryRegex);
     if (wordBoundaryAfter === -1) {
         wordBoundaryAfter = textAfterSelection.length;
@@ -55,12 +61,14 @@ export const getSelectionContext = (
     selectionEnd += wordBoundaryAfter;
 
     const context: SelectionContext = {
-        before: doc.cut(contextStart, selectionStart).textContent,
-        selection: doc.cut(selectionStart, selectionEnd).textContent,
-        after: doc.cut(selectionEnd, contextEnd).textContent,
+        before: getTextForSlice(doc.cut(contextStart, selectionStart)),
+        selection: getTextForSlice(doc.cut(selectionStart, selectionEnd)),
+        after: getTextForSlice(doc.cut(selectionEnd, contextEnd)),
         selectionStart,
         selectionEnd,
     };
+
+    console.log("context", context);
 
     return context;
 };

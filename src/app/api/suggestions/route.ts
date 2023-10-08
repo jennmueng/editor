@@ -14,7 +14,11 @@ export const runtime = "edge";
 export const POST = withRateLimit(async (req) => {
     const { before, selection, after } = (await req.json()) as SelectionContext;
 
-    const joinedContext = `${before}[${selection}]${after}`.trim();
+    const joinedContext = `${before}[${selection}]${after}`
+        .replace("\n", "\\n")
+        .trim();
+
+    console.log("joinedContext", joinedContext);
 
     // Ask OpenAI for a streaming completion given the prompt
     const response = await openai.completions.create({
@@ -27,6 +31,7 @@ export const POST = withRateLimit(async (req) => {
 - Make sure a suggestion works in the context of the sentence.
 - The suggestion should be an exact replacement of the text inside the brackets. No extra words should be added that do not fit in the context of the sentence.
 - Return only one [...] block per suggestion.
+- If newlines are present, place the string '\\n'.
 </guidelines>
 ---
 <example>
@@ -62,7 +67,9 @@ ${joinedContext}
 
     const suggestions = outputText.split("\n").flatMap((suggestion) => {
         let match = suggestion.match(/\[(.*?)\]/);
-        const result = (match ? match[1] : suggestion.replace("- ", "")).trim();
+        const result = (match ? match[1] : suggestion.replace("- ", ""))
+            .trim()
+            .replace("\\n", "\n");
 
         if (result && result !== selection) {
             return result;

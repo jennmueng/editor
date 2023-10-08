@@ -11,6 +11,8 @@
     "dependencies": {
         "@floating-ui/react": "^0.26.0",
         "@tiptap/extension-bubble-menu": "^2.1.11",
+        "@tiptap/extension-hard-break": "^2.1.11",
+        "@tiptap/extension-placeholder": "^2.1.11",
         "@tiptap/pm": "^2.1.11",
         "@tiptap/react": "^2.1.11",
         "@tiptap/starter-kit": "^2.1.11",

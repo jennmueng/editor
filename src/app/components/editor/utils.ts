@@ -105,6 +105,15 @@ export const useSuggestions = () => {
             setContext(context);
             setStatus("fetching");
 
+            editor
+                .chain()
+                .setTextSelection({
+                    from: context.selectionStart,
+                    to: context.selectionEnd,
+                })
+                .setMeta("isSystemAction", true)
+                .run();
+
             const transactionId = Date.now();
             transactionRef.current = transactionId;
 

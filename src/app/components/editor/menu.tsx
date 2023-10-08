@@ -1,8 +1,10 @@
 import { posToDOMRect, useCurrentEditor } from "@tiptap/react";
-import { Suggestions } from "./suggestions";
-import { SelectionContext } from "~/app/types";
 import React from "react";
+
+import { SelectionContext } from "~/app/types";
+
 import { Popup } from "./popup";
+import { Suggestions } from "./suggestions";
 
 interface MenuProps {
     suggestions: string[];

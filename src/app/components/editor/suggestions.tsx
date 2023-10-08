@@ -1,8 +1,10 @@
-import React from "react";
-import { Spinner } from "../spinner";
-import { useUnmount, useUpdateEffect } from "react-use";
 import { useCurrentEditor } from "@tiptap/react";
+import React from "react";
+import { useUnmount, useUpdateEffect } from "react-use";
+
 import { SelectionContext } from "~/app/types";
+
+import { Spinner } from "../spinner";
 
 interface PopupChildrenProps {
     isLoading: boolean;

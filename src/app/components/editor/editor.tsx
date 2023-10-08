@@ -1,15 +1,13 @@
 "use client";
 
-import { useSuggestions } from "./utils";
-
+import Placeholder from "@tiptap/extension-placeholder";
 import { EditorProvider } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { SelectionHighlightMark, TextReplacementExtension } from "./extensions";
-
 import React from "react";
+
+import { SelectionHighlightMark, TextReplacementExtension } from "./extensions";
 import { Menu } from "./menu";
-import Placeholder from "@tiptap/extension-placeholder";
-import HardBreak from "@tiptap/extension-hard-break";
+import { useSuggestions } from "./utils";
 
 export const Editor = () => {
     const { suggestions, status, debouncedGetSuggestions, context, onBlur } =

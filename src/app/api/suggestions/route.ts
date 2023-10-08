@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+
 import { SelectionContext } from "~/app/types";
+
 import { withRateLimit } from "../utils";
 
 // Create an OpenAI API client (that's edge friendly!)

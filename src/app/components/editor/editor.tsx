@@ -1,6 +1,6 @@
 "use client";
 
-import { useSuggestions } from "./util";
+import { useSuggestions } from "./utils";
 
 import { EditorProvider } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";

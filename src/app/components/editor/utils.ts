@@ -4,9 +4,13 @@ import React from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Editor as IEditor } from "@tiptap/core";
 import { Transaction } from "@tiptap/pm/state";
+import { exponentialBackoff, fetchWithRetry } from "~/app/utils";
 
 export const fetchSuggestions = async (context: SelectionContext) => {
-    const response = await fetch("/api/rephrase", {
+    const response = await fetchWithRetry("/api/suggestions", {
+        retryOn: [429],
+        retryDelay: exponentialBackoff,
+        retries: 5,
         method: "POST",
         body: JSON.stringify(context),
     });

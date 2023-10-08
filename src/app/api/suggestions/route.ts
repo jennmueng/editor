@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { SelectionContext } from "~/app/types";
+import { withRateLimit } from "../utils";
 
 // Create an OpenAI API client (that's edge friendly!)
 const openai = new OpenAI({
@@ -10,7 +11,7 @@ const openai = new OpenAI({
 // Set the runtime to edge for best performance
 export const runtime = "edge";
 
-export async function POST(req: Request) {
+export const POST = withRateLimit(async (req) => {
     const { before, selection, after } = (await req.json()) as SelectionContext;
 
     const joinedContext = `${before}[${selection}]${after}`.trim();
@@ -71,4 +72,4 @@ ${joinedContext}
     });
 
     return NextResponse.json(suggestions);
-}
+});

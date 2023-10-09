@@ -24,12 +24,15 @@ export const TextReplacementExtension = Extension.create({
         return {
             setText:
                 (text: string) =>
-                ({ tr, state, commands }) => {
+                ({ tr, state, chain }) => {
                     tr.replaceSelectionWith(tr.doc.type.schema.text(text));
-                    commands.setTextSelection({
-                        from: state.selection.from,
-                        to: state.selection.from + text.length,
-                    });
+                    chain()
+                        .setTextSelection({
+                            from: state.selection.from,
+                            to: state.selection.from + text.length,
+                        })
+                        .setMeta("isSystemAction", true)
+                        .run();
 
                     return true;
                 },
@@ -50,14 +53,17 @@ export const TextReplacementExtension = Extension.create({
                 },
             revertText:
                 () =>
-                ({ tr, state, commands }) => {
+                ({ tr, state, chain }) => {
                     tr.replaceSelectionWith(
                         tr.doc.type.schema.text(originalText)
                     );
-                    commands.setTextSelection({
-                        from: state.selection.from,
-                        to: state.selection.from + originalText.length,
-                    });
+                    chain()
+                        .setTextSelection({
+                            from: state.selection.from,
+                            to: state.selection.from + originalText.length,
+                        })
+                        .setMeta("isSystemAction", true)
+                        .run();
 
                     originalText = "";
                     replacedText = "";

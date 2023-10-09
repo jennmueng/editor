@@ -1,4 +1,5 @@
 import { posToDOMRect, useCurrentEditor } from "@tiptap/react";
+import { SparklesIcon } from "lucide-react";
 import React from "react";
 
 import { SelectionContext } from "~/app/types";
@@ -28,6 +29,11 @@ export const Menu = ({ suggestions, context, status }: MenuProps) => {
             editor.state.selection.to
         );
 
+        const editorRect = editor.view.dom.getBoundingClientRect();
+
+        rect.y -= editorRect.y;
+        rect.x -= editorRect.x;
+
         lastRect.current = rect;
 
         return rect;
@@ -44,11 +50,17 @@ export const Menu = ({ suggestions, context, status }: MenuProps) => {
 
     return (
         <Popup rect={rect} visible={status !== "idle"}>
-            <Suggestions
-                isLoading={status === "fetching" || status === "idle"}
-                suggestions={suggestions}
-                context={context}
-            />
+            <div className="flex flex-col gap-2">
+                <div className="flex flex-row items-center gap-1">
+                    <span className="text-sm font-semibold">Suggestions</span>
+                    <SparklesIcon className="w-4 h-4 text-violet-500" />
+                </div>
+                <Suggestions
+                    isLoading={status === "fetching" || status === "idle"}
+                    suggestions={suggestions}
+                    context={context}
+                />
+            </div>
         </Popup>
     );
 };

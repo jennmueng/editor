@@ -13,44 +13,47 @@ export const Editor = () => {
     const { suggestions, status, debouncedGetSuggestions, context, onBlur } =
         useSuggestions();
 
-    const shouldUpdate = React.useCallback(() => {
-        return status === "idle";
-    }, [status]);
-
     return (
-        <EditorProvider
-            extensions={[
-                StarterKit,
-                SelectionHighlightMark,
-                TextReplacementExtension,
-                Placeholder.configure({
-                    placeholder: "Start typing the next big thing...",
-                }),
-                // HardBreak.extend({
-                //     addKeyboardShortcuts() {
-                //         return {
-                //             Enter: () => this.editor.commands.setHardBreak(),
-                //         };
-                //     },
-                // }).configure({
-                //     keepMarks: false,
-                // }),
-            ]}
-            editorProps={{
-                attributes: {
-                    class: "prose !outline-none p-4",
-                },
-            }}
-            onBlur={onBlur}
-            onSelectionUpdate={({ editor, transaction }) => {
-                const isSystemAction = transaction.getMeta("isSystemAction");
+        <div className="relative">
+            <EditorProvider
+                extensions={[
+                    StarterKit,
+                    SelectionHighlightMark,
+                    TextReplacementExtension,
+                    Placeholder.configure({
+                        placeholder: "Start typing the next big thing...",
+                    }),
+                    // HardBreak.extend({
+                    //     addKeyboardShortcuts() {
+                    //         return {
+                    //             Enter: () => this.editor.commands.setHardBreak(),
+                    //         };
+                    //     },
+                    // }).configure({
+                    //     keepMarks: false,
+                    // }),
+                ]}
+                editorProps={{
+                    attributes: {
+                        class: "prose !outline-none p-4",
+                    },
+                }}
+                onBlur={onBlur}
+                onSelectionUpdate={({ editor, transaction }) => {
+                    const isSystemAction =
+                        transaction.getMeta("isSystemAction");
 
-                if (!isSystemAction) {
-                    debouncedGetSuggestions(editor, transaction);
-                }
-            }}
-        >
-            <Menu suggestions={suggestions} context={context} status={status} />
-        </EditorProvider>
+                    if (!isSystemAction) {
+                        debouncedGetSuggestions(editor, transaction);
+                    }
+                }}
+            >
+                <Menu
+                    suggestions={suggestions}
+                    context={context}
+                    status={status}
+                />
+            </EditorProvider>
+        </div>
     );
 };

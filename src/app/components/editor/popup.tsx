@@ -1,7 +1,8 @@
 "use client";
 
-import { autoUpdate, useFloating } from "@floating-ui/react";
+import { autoUpdate, shift, useFloating } from "@floating-ui/react";
 import clsx from "clsx";
+import { useMedia } from "react-use";
 
 interface PopupProps {
     rect?: DOMRect | null;
@@ -10,9 +11,12 @@ interface PopupProps {
 }
 
 export const Popup = ({ rect, visible, children }: PopupProps) => {
+    const isMobile = useMedia("(max-width: 640px)");
     const { refs, floatingStyles } = useFloating({
         whileElementsMounted: autoUpdate,
-        placement: "top",
+        placement: isMobile ? "bottom" : "top",
+        strategy: "fixed",
+        middleware: [shift()],
     });
 
     if (!rect) {
@@ -22,7 +26,7 @@ export const Popup = ({ rect, visible, children }: PopupProps) => {
     return (
         <div
             className={clsx(
-                "absolute top-0 left-0 flex items-center justify-center pointer-events-none"
+                "flex absolute top-0 left-0 items-center justify-center pointer-events-none "
             )}
             ref={refs.setReference}
             style={{
@@ -37,7 +41,7 @@ export const Popup = ({ rect, visible, children }: PopupProps) => {
                     style={floatingStyles}
                     className="flex-grow-0 flex-shrink"
                 >
-                    <div className="animate-in ease-in-out zoom-in-75 bg-white border rounded-md shadow-md p-1 flex flex-col flex-shrink  max-w-6xl pointer-events-auto">
+                    <div className="animate-in ease-in-out zoom-in-75 bg-white border rounded-md shadow-md py-2 px-3 flex flex-col flex-shrink min-w-[60vw] md:min-w-min max-w-[80vw] pointer-events-auto">
                         {children}
                     </div>
                 </div>

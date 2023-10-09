@@ -48,7 +48,7 @@ export const Suggestions = ({
                 {suggestions.map((suggestion, index) => (
                     <div
                         key={index}
-                        className="p-2 cursor-pointer hover:bg-gray-100 rounded text-xs pointer-events-auto select-none whitespace-nowrap"
+                        className="py-1 px-2 cursor-pointer hover:bg-gray-100 rounded text-xs pointer-events-auto select-none"
                         onMouseEnter={() => showTempText(suggestion)}
                         onMouseLeave={revertText}
                         onClick={(e) => {

@@ -139,7 +139,10 @@ export const useSuggestions = () => {
                 setSuggestions([]);
                 setStatus("idle");
                 setContext(null);
-            } else if (status === "idle") {
+            } else if (
+                status === "idle" ||
+                (status === "done" && !transaction.getMeta("isSystemAction"))
+            ) {
                 debouncedGetSuggestions(editor, transaction);
             }
         },

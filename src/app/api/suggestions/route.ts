@@ -67,18 +67,22 @@ ${joinedContext}
     console.log("--RAW_RESPONSE--");
     console.log(outputText);
 
-    const suggestions = outputText.split("\n").flatMap((suggestion) => {
-        let match = suggestion.match(/\[(.*?)\]/);
-        const result = (match ? match[1] : suggestion.replace("- ", ""))
-            .trim()
-            .replace("\\n", "\n");
+    const suggestions = Array.from(
+        new Set(
+            outputText.split("\n").flatMap((suggestion) => {
+                let match = suggestion.match(/\[(.*?)\]/);
+                const result = (match ? match[1] : suggestion.replace("- ", ""))
+                    .trim()
+                    .replace("\\n", "\n");
 
-        if (result && result !== selection) {
-            return result;
-        }
+                if (result && result !== selection) {
+                    return result;
+                }
 
-        return [];
-    });
+                return [];
+            })
+        )
+    );
 
     return NextResponse.json(suggestions);
 });

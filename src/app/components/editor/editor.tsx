@@ -4,14 +4,22 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { EditorProvider } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import React from "react";
+import ReactDOM from "react-dom";
 
-import { SelectionHighlightMark, TextReplacementExtension } from "./extensions";
+import {
+    CompletionExtension,
+    PreviewCompletionNode,
+    SelectionHighlightMark,
+    TextReplacementExtension,
+} from "./extensions";
 import { Menu } from "./menu";
-import { useSuggestions } from "./utils";
+import { useCompletion, useSuggestions } from "./utils";
 
 export const Editor = () => {
     const { suggestions, status, debouncedGetSuggestions, context, onBlur } =
         useSuggestions();
+
+    const { onContentChange, removePreviewCompletion } = useCompletion();
 
     return (
         <div className="relative">
@@ -19,23 +27,16 @@ export const Editor = () => {
                 extensions={[
                     StarterKit,
                     SelectionHighlightMark,
+                    PreviewCompletionNode,
                     TextReplacementExtension,
                     Placeholder.configure({
                         placeholder: "Start typing the next big thing...",
                     }),
-                    // HardBreak.extend({
-                    //     addKeyboardShortcuts() {
-                    //         return {
-                    //             Enter: () => this.editor.commands.setHardBreak(),
-                    //         };
-                    //     },
-                    // }).configure({
-                    //     keepMarks: false,
-                    // }),
+                    CompletionExtension,
                 ]}
                 editorProps={{
                     attributes: {
-                        class: "prose !outline-none p-4",
+                        class: "prose !outline-none p-4 min-h-[50vh]",
                     },
                 }}
                 onBlur={onBlur}
@@ -44,8 +45,12 @@ export const Editor = () => {
                         transaction.getMeta("isSystemAction");
 
                     if (!isSystemAction) {
+                        removePreviewCompletion(editor);
                         debouncedGetSuggestions(editor, transaction);
                     }
+                }}
+                onUpdate={({ editor, transaction }) => {
+                    onContentChange(editor, transaction);
                 }}
             >
                 <Menu

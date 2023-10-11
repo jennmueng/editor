@@ -19,6 +19,18 @@ export const fetchSuggestions = async (context: SelectionContext) => {
     return response.json() as Promise<string[]>;
 };
 
+export const fetchCompletion = async (text: string) => {
+    const response = await fetchWithRetry("/api/completion", {
+        retryOn: [429],
+        retryDelay: exponentialBackoff,
+        retries: 5,
+        method: "POST",
+        body: JSON.stringify({ text }),
+    });
+
+    return (await response.json()).completionText as string;
+};
+
 export const getTextForSlice = (node: Node) => {
     return node.textBetween(0, node.nodeSize - 2, "\n");
 };
@@ -68,8 +80,6 @@ export const getSelectionContext = (
         selectionStart,
         selectionEnd,
     };
-
-    console.log("context", context);
 
     return context;
 };
@@ -156,4 +166,52 @@ export const useSuggestions = () => {
         debouncedGetSuggestions: getSuggestionsHandler,
         onBlur,
     };
+};
+
+const MIN_DOC_LENGTH_FOR_COMPLETION = 16;
+const COMPLETION_CONTEXT_CHARS = 128;
+
+export const useCompletion = () => {
+    const debouncedCompletion = useDebouncedCallback(
+        async (editor: IEditor, transaction: Transaction) => {
+            const text = getTextForSlice(
+                editor.state.doc.cut(
+                    Math.max(
+                        0,
+                        editor.state.selection.from - COMPLETION_CONTEXT_CHARS
+                    ),
+                    editor.state.selection.from
+                )
+            );
+
+            const completion = await fetchCompletion(text);
+
+            editor.commands.previewCompletion(completion);
+        },
+        500,
+        { leading: false }
+    );
+
+    const removePreviewCompletion = React.useCallback((editor: IEditor) => {
+        editor.commands.revertCompletion();
+    }, []);
+
+    const onContentChange = React.useCallback(
+        (editor: IEditor, transaction: Transaction) => {
+            const isSystemAction = transaction.getMeta("isSystemAction");
+            if (!isSystemAction) {
+                editor.commands.revertCompletion();
+                if (
+                    editor.state.selection.empty &&
+                    editor.state.doc.textContent.length >
+                        MIN_DOC_LENGTH_FOR_COMPLETION
+                ) {
+                    debouncedCompletion(editor, transaction);
+                }
+            }
+        },
+        [debouncedCompletion]
+    );
+
+    return { onContentChange, removePreviewCompletion };
 };

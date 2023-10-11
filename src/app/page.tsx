@@ -16,13 +16,12 @@ export default function Home() {
                         />
                         <h1 className="text-2xl font-semibold">Magic Editor</h1>
                     </div>
-                    <span className="text-sm text-gray-400 tracking-normal">
-                        Select any text to trigger suggestions
+                    <span className="text-sm text-gray-400 tracking-normal text-center px-8">
+                        Start typing to use autocompletion; select any text to
+                        trigger suggestions
                     </span>
                 </div>
-                <div className="md:border border-gray-200 md:rounded-lg md:shadow-sm">
-                    <Editor />
-                </div>
+                <Editor />
             </div>
         </main>
     );
